@@ -20,31 +20,41 @@ const db = mysql.createConnection(
     // MySQL password
     password: "hades666phanes!",
     database: "employees_db",
-  },
-  console.log(`Connected to the employees_db database.`)
+    multipleStatements: true,
+  },(database) => {
+    console.log(`Connected to the employees_db database`, database);
+  }
 );
-
-// Query database
-db.query("SELECT * FROM employee", function (err, results) {
-  console.log(results);
-});
-
-// Default response for any other request (Not Found)
-app.use((req, res) => {
-  res.status(404).end();
-});
-
-// Where we are connected
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
 
 // mysql -y root -p
 // mySQL 
 // npm start server.js
 // node server.js
 
-// An array of prompts
+
+// const viewEmployees
+
+// const viewDepartments
+
+// const viewRoles 
+
+// const addEmployee
+
+// const addDepartment
+
+// const addRole
+
+// const askEmployeeQuestionsAndThenAddEmployee
+
+// inquirer.prompt(questionsToAsk)
+
+// const updateAnEmployeeRole
+
+// const mainMenuChoices
+
+// const startMenu
+
+
 const startPrompt = [
     {
         name: "Selector",
@@ -62,3 +72,24 @@ const startPrompt = [
         ]
     }
 ];
+
+// Get and post routes here
+// any other queries
+// delete routes
+// Query database
+
+db.query("SELECT * FROM employee", function (err, results) {
+  console.log(results);
+});
+
+// Default response for any other request (Not Found)
+app.use((req, res) => {
+  res.status(404).end();
+});
+
+// Where we are connected
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Last line is to call the entire startMenu() function to run the app and begin the prompting process

@@ -28,7 +28,7 @@ CREATE TABLE role (
     -- to hold reference to department role belongs to
 );
 
-CREATE TABLE employee (
+CREATE TABLE employees (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 
     first_name VARCHAR(30) NOT NULL , 
@@ -53,3 +53,4 @@ CREATE TABLE employee (
 -- SET name = "strawberry"
 -- WHERE id = 1;
 
+SELECT DATABASE();

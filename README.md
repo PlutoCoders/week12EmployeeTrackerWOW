@@ -1,6 +1,16 @@
 # week12EmployeeTrackerWOW
 Employee Tracker Assignment for week 12 bootcamp!
 
+## Repo Link
+- 
+## Walkthrough Video Link
+- 
+
+## In this assignment
+- We are creating a database that allows users to navigate through it and search for employees, roles, etc.
+- This is useful because it allows user-friendly searching through what could be large databases
+- Everything is done from the terminal
+
 
 ## Checklist
 WHEN I start the application
@@ -20,3 +30,8 @@ WHEN I choose to add an employee
 THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
 WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
+
+## Credits
+- I'd like to thank my brother for assisting me throughout the course as we both navigate the ups and downs of coding bootcamp!
+- I'd like to thank our amazing tutor strawhat for helping us overcome obstacles, showing us cool tricks, and helping us become better developers!
+- PS: Thank you chat gpt and xpert learning assistant for helping us fix quick erorrs when stack overflow was tedious to sift though
