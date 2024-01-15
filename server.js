@@ -35,6 +35,70 @@ const db = mysql.createConnection(
 
 
 // const viewEmployees
+const viewEmployees = ( res = false, server = false, newestFirst = false ) => {
+  const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
+
+  db.query(sql, (error, allDataFromTables) => {
+    error ? console.log(error) : true; 
+
+    let [ roles, employees, departments ] = allDataFromTables;
+
+    let expandedRoles = roles.map(rol => {
+      let thisRolesDepartment = departments.find(dep => dep.id == rol.department_id);
+      return {
+        ...new Role(rol),
+        department_name: thisRolesDepartment.name
+      }
+    })
+
+    let expandedEmployees = employees.map(emp => {
+      let isManager = emp.role_id == roleLevels.Manager;
+      let managerOfEmployee = employees.find(em => emp.manager_id == em.id);
+      let thisEmployeesRole = expandedRoles.find(rol => rol.id == emp.role_id);
+      let thisEmployeesDepartment = departments.find(dep => dep.id == thisEmployeesRole.department_id);
+
+      return {
+        ...new Employee(emp),
+        job_title: thisEmployeesRole.title,
+        department_id: thisEmployeesDepartment.id,
+        department_name: thisEmployeesDepartment.name,
+        manager_id: isManager ? null : managerOfEmployee.id,
+        salary: parseFloat(thisEmployeesRole.salary).toLocaleString(`en-US`),
+        manager_name: isManager ? null : `${managerOfEmployee.first_name} ${managerOfEmployee.last_name}`,
+      }
+    })
+
+    if (newestFirst == true) {
+      expandedEmployees = expandedEmployees.reverse();
+      // expandedEmployees = expandedEmployees.sort((firstEmployee, secondEmployee) => secondEmployee.id - firstEmployee.id);
+    };
+
+    if (error) {
+      if (server == true) {
+        res.status(500).json({ error: error.message });
+      } else {
+        console.log(`error getting employees`, error);
+      }
+      return;
+    }
+  
+    if (server == true) {
+      res.json({
+        message: "success",
+        data: expandedEmployees,
+      });
+    } else {
+      if (expandedEmployees.length > 0) {
+        console.table(expandedEmployees);
+      } else {
+        console.log(`There are no Employees in the Database Currently`);
+      }
+      setTimeout(() => {
+        startMenu();
+      }, 2500)
+    }
+  });
+}
 
 // const viewDepartments
 const viewDepartments = ( res = false, server = false, sortByNewestFirst = false ) => {
