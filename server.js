@@ -69,6 +69,50 @@ const viewDepartments = ( res = false, server = false, sortByNewestFirst = false
 
 // const viewRoles 
 
+const viewRoles = async ( res = false, server = false, sortByNewestFirst = false ) => {
+  const sql = `SELECT * FROM roles; SELECT * FROM departments;`;
+
+  db.query(sql, (error, allDataFromTables) => {
+    error ? console.log(error) : true; 
+
+    let [ roles, departments ] = allDataFromTables;
+
+    let expandedRoles = roles.map(rol => {
+      let thisRolesDepartment = departments.find(dep => dep.id == rol.department_id);
+      return {
+        ...new Role(rol),
+        department_name: thisRolesDepartment.name
+      }
+    })
+
+    if (error) {
+      if (server == true) {
+        res.status(500).json({ error: error.message });
+      } else {
+        console.log(`couldnt fetch roles`, error);
+      }
+      return;
+    }
+  
+    if (server == true) {
+      res.json({
+        message: "success",
+        data: expandedRoles,
+      });
+    } else {
+      if (expandedRoles.length > 0) {
+        if (sortByNewestFirst == true) expandedRoles = expandedRoles.reverse();
+        console.table(expandedRoles);
+      } else {
+        console.log(`NO roles in DB`);
+      }
+      setTimeout(() => {
+        startMenu();
+      }, 3000)
+    }
+  });
+}
+
 // const addEmployee
 
 // const addDepartment
