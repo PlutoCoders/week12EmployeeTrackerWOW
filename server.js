@@ -1,8 +1,10 @@
-// Layout from week 12 lesson 11
-
-const express = require("express");
-// Import and require mysql2
-const mysql = require("mysql2");
+// The tree of code!
+const mySQL2 = require(`mysql2`);
+const express = require(`express`);
+const inquirer = require(`inquirer`);
+const Role = require("./db/models/Role");
+const Employee = require("./db/models/Employee");
+const Department = require("./db/models/Department");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -55,23 +57,51 @@ const db = mysql.createConnection(
 // const startMenu
 
 
-const startPrompt = [
-    {
-        name: "Selector",
-        type: "list",
-        message: "Select an option",
-        choices: [
-          "View departments",
-          "View roles",
-          "View employees",
-          "Add department",
-          "Add role",
-          "Add employee",
-          "Update employee",
-          "EXIT" 
-        ]
-    }
+const mainMenuChoices = {
+  ViewAllDepartments: `View all departments`,
+  ViewAllRoles: `View all roles`,
+  ViewAllEmployees: `View all employees`,
+  AddADepartment: `Add a department`,
+  AddAnEmployee: `Add an employee`,
+  AddARole: `Add a role`,
+  UpdateAnEmployeeRole: `Update an employee role`,
+}
+
+const mainMenuQuestions = [
+  {
+    name: `choice`,
+    type: `list`,
+    message: `Make a selection`,
+    choices: Object.values(mainMenuChoices)
+  }
 ];
+
+const startMenu = () => {
+  inquirer.prompt(mainMenuQuestions).then(userResponse => {
+    let choice = userResponse.choice;
+    
+    if (choice == mainMenuChoices.ViewAllEmployees) {
+      viewEmployees();
+    } else if (choice == mainMenuChoices.AddAnEmployee) {
+     functionToSetupHere();
+    } else if (choice == mainMenuChoices.ViewAllDepartments) {
+      viewDepartments();
+    } else if (choice == mainMenuChoices.ViewAllRoles) {
+      viewRoles();
+    } else if (choice == mainMenuChoices.AddADepartment) {
+      addDepartment();
+    } else if (choice == mainMenuChoices.AddARole) {
+      addRole();
+    } else if (choice == mainMenuChoices.UpdateAnEmployeeRole) {
+      updateAnEmployeeRole();
+    } else {
+      console.log(`Under Construction!`);
+      setTimeout(() => {
+        startMenu();
+      }, 4000);
+    }
+  });
+};
 
 // Get and post routes here
 // any other queries
