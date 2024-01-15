@@ -37,6 +37,35 @@ const db = mysql.createConnection(
 // const viewEmployees
 
 // const viewDepartments
+const viewDepartments = ( res = false, server = false, sortByNewestFirst = false ) => {
+  const sql = `SELECT * FROM departments`;
+  db.query(sql, (error, departments) => {
+    if (error) {
+      if (server == true) {
+        res.status(500).json({ error: error.message });
+      } else {
+        console.log(`error fetching departments`, error);
+      }
+      return;
+    }
+    if (server == true) {
+      res.json({
+        message: "success",
+        data: departments,
+      });
+    } else {
+      if (departments.length > 0) {
+        let databaseDepartments = departments.map(dep => new Department(dep));
+        console.table(databaseDepartments);
+      } else {
+        console.log(`No Departments to view!`);
+      }
+      setTimeout(() => {
+        startMenu();
+      }, 4000)
+    }
+  });
+}
 
 // const viewRoles 
 
@@ -104,10 +133,12 @@ const startMenu = () => {
 };
 
 // Get and post routes here
+// app.get (for each route - employees, departments, new employees, roles, employees roles, new departments, etc)
 // any other queries
 // delete routes
-// Query database
+// app.delete
 
+// Query database
 db.query("SELECT * FROM employee", function (err, results) {
   console.log(results);
 });
@@ -123,3 +154,4 @@ app.listen(PORT, () => {
 });
 
 // Last line is to call the entire startMenu() function to run the app and begin the prompting process
+startMenu()
