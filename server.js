@@ -207,6 +207,92 @@ const addEmployee = (first_name, last_name, manager_id, role_id, req = false, re
   }
 }
 
+const addDepartment = ( req = false, res = false, server = false ) => {
+  const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
+  db.query(sql, (error, allDataFromTables) => {
+    error ? console.log(error) : true; 
+
+    let [ roles, employees, departments ] = allDataFromTables;
+
+    let expandedRoles = roles.map(rol => {
+      let thisRolesDepartment = departments.find(dep => dep.id == rol.department_id);
+      return {
+        ...new Role(rol),
+        department_name: thisRolesDepartment.name
+      }
+    })
+
+    let expandedEmployees = employees.map(emp => {
+      let isManager = emp.role_id == roleLevels.Manager;
+      let managerOfEmployee = employees.find(em => emp.manager_id == em.id);
+      let thisEmployeesRole = expandedRoles.find(rol => rol.id == emp.role_id);
+      let thisEmployeesDepartment = departments.find(dep => dep.id == thisEmployeesRole.department_id);
+
+      return {
+        ...new Employee(emp),
+        salary: parseFloat(thisEmployeesRole.salary).toLocaleString(`en-US`),
+        job_title: thisEmployeesRole.title,
+        department_id: thisEmployeesDepartment.id,
+        department_name: thisEmployeesDepartment.name,
+        fullName: `${emp.first_name} ${emp.last_name}`,
+        manager_id: isManager ? null : managerOfEmployee.id,
+        manager_name: isManager ? null : `${managerOfEmployee.first_name} ${managerOfEmployee.last_name}`,
+      }
+    })
+
+    let managers = expandedEmployees.filter(emp => emp.role_id == roleLevels.Manager);
+    let managerNames = managers.map(emp => emp.fullName);
+
+    inquirer.prompt([
+      {
+        type: `input`,
+        name: `departmentName`,
+        message: `What is the name of the department?`,
+      }
+    ]).then(response => {
+      let departmentName = response.departmentName;
+      let currentCapitalizedDepartmentName = capWords(departmentName);
+      let departmentNames = departments.map(dep => dep.name);
+
+      if (departmentNames.includes(currentCapitalizedDepartmentName)) {
+        console.log(`Department Already Exists`);
+        setTimeout(() => {
+          startMenu();
+        }, 3000);
+        return;
+      } else {
+        const sql = `INSERT INTO departments (name) VALUES (?);`;
+        if (server == true) {
+          let { body } = req;
+          const params = [body.departmentName];
+          db.query(sql, params, (err, result) => {
+            if (err) {
+              res.status(400).json({ error: err.message });
+              return;
+            }
+            res.json({
+              message: "successfully added a department:",
+              data: body,
+            });
+          });
+        } else {
+          const params = [currentCapitalizedDepartmentName];
+          db.query(sql, params, (err, addedDepartmentMessage) => {
+            if (err) {
+             console.log({ error: err.message });
+              return;
+            }
+            console.log(`Successfully Added Department`);
+            let sortByNewestFirst = true;
+            viewDepartments(false, false, sortByNewestFirst);
+          });
+        }
+      }
+
+    })
+  });
+};
+
 const askEmployeeQuestionsAndThenAddEmployee = () => {
   const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
 
@@ -356,6 +442,12 @@ const startMenu = () => {
 app.get("/api/departments", (req, res) => {
   let server = true;
  viewDepartments(res, server);
+});
+
+// adding a new department
+app.post("/api/new-departments", (req, res) => {
+  let server = true;
+  addDepartment(req, res, server);
 });
 
 // Read all employees
