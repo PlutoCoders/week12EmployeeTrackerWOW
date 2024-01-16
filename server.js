@@ -663,6 +663,27 @@ app.get("/api/employees-employees_roles", (req, res) => {
   });
 });
 
+app.delete("/api/employees/:id", (req, res) => {
+  const sql = `DELETE FROM employees WHERE id = ?`;
+  const params = [req.params.id];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      res.status(400).json({ error: res.message });
+    } else if (!result.affectedRows) {
+      res.json({
+        message: "employee not found",
+      });
+    } else {
+      res.json({
+        message: "deleted",
+        changes: result.affectedRows,
+        id: req.params.id,
+      });
+    }
+  });
+});
+
 // Default response for any other request (Not Found)
 app.use((req, res) => {
   res.status(404).end();
