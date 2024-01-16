@@ -73,6 +73,9 @@ const viewEmployees = ( res = false, server = false, newestFirst = false ) => {
     })
 
     let expandedEmployees = employees.map(emp => {
+      // checking if an employee is a manager
+      // This is how we sort through the db to look for different traits, such as managers, what an employees role is, their department, etc
+      // Then we return all that info
       let isManager = emp.role_id == roleLevels.Manager;
       let managerOfEmployee = employees.find(em => emp.manager_id == em.id);
       let thisEmployeesRole = expandedRoles.find(rol => rol.id == emp.role_id);
@@ -120,6 +123,13 @@ const viewEmployees = ( res = false, server = false, newestFirst = false ) => {
     }
   });
 }
+
+// fetch information about departments. 
+// It retrieves data from the 'departments' table and provides the option to sort the departments, either by the default order or in reverse order (newest first). 
+// includes logic for handling both server and client-side execution. 
+// If there is an error fetching departments, it logs an error message or sends a JSON response with an error status if executed on the server. 
+// If successful, it either logs the department information to the console (in a tabular format) or sends a JSON response with the department data if executed on the server. 
+// After displaying the information (or handling server response), it invokes the startMenu function after a delay.
 
 // const viewDepartments
 const viewDepartments = ( res = false, server = false, sortByNewestFirst = false ) => {
@@ -315,6 +325,13 @@ const addDepartment = ( req = false, res = false, server = false ) => {
   });
 };
 
+// fetch information about roles, employees, and departments. 
+// then prompts the user with questions to gather details for adding a new role. 
+// questions include the role name, salary, and the department to which the role belongs. 
+// dynamically generates choices for departments based on the fetched data. 
+// After gathering user input, it checks if the role already exists, and if not, it adds the new role to the database. 
+// function includes logic for handling both server and client-side execution, with additional functionality for responding to server requests. 
+// If successful, it either logs a success message or sends a JSON response with the added role information.
 const addRole = ( req = false, res = false, server = false ) => {
   const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
   db.query(sql, (error, allDataFromTables) => {
@@ -414,6 +431,11 @@ const addRole = ( req = false, res = false, server = false ) => {
   });
 };
 
+// retrieve information about roles, employees, and departments. 
+// prompts the user with questions to gather details for adding a new employee. 
+// The questions include the employee's first name, last name, role, and manager (if applicable). 
+// The function utilizes the fetched data to dynamically generate choices for roles and managers. 
+// The gathered information is structured and used for adding a new employee to the database.
 const askEmployeeQuestionsAndThenAddEmployee = () => {
   const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
 
@@ -479,7 +501,8 @@ const askEmployeeQuestionsAndThenAddEmployee = () => {
         }
       }
     ];
-  
+    // collects information from the user, processes it to obtain role and manager IDs, 
+    // checks if an employee with the same name already exists, and either logs a message or adds a new employee accordingly.
     inquirer.prompt(questionsToAsk).then(employeeResponse => {
       let { first_name, last_name, role, manager } = employeeResponse;
       let role_id = roles.find(rol => rol.title == role).id;
@@ -495,6 +518,10 @@ const askEmployeeQuestionsAndThenAddEmployee = () => {
   });
 }
 
+// fetches data from the 'roles', 'employees', and 'departments' tables, 
+// processes and expands the information, 
+// prompts the user to select an employee and choose a new role, and then updates the employee's role in the database. 
+// After the update, it calls the viewEmployees function to display the updated employee information.
 const updateAnEmployeeRole = () => {
   const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
 
