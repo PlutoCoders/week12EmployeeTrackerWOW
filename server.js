@@ -95,7 +95,7 @@ const viewEmployees = ( res = false, server = false, newestFirst = false ) => {
       }
       setTimeout(() => {
         startMenu();
-      }, 2500)
+      }, 3000)
     }
   });
 }
@@ -178,6 +178,116 @@ const viewRoles = async ( res = false, server = false, sortByNewestFirst = false
 }
 
 // const addEmployee
+const addEmployee = (first_name, last_name, manager_id, role_id, req = false, res = false, server = false) => {
+  const sql = `INSERT INTO employees (first_name, last_name, manager_id, role_id) VALUES (?, ?, ?, ?);`;
+  if (server == true) {
+    let { body } = req;
+    const params = [body.first_name, body.last_name, body.manager_id, body.role_id];
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        res.status(400).json({ error: err.message });
+        return;
+      }
+      res.json({
+        message: "success",
+        data: body,
+      });
+    });
+  } else {
+    const params = [capWords(first_name), capWords(last_name), manager_id, role_id];
+    db.query(sql, params, (err, addedEmployeeMessage) => {
+      if (err) {
+       console.log({ error: err.message });
+        return;
+      }
+      console.log(`Successfully Added Employee`);
+      let sortByNewestFirst = true;
+      viewEmployees(false, false, sortByNewestFirst);
+    });
+  }
+}
+
+const askEmployeeQuestionsAndThenAddEmployee = () => {
+  const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
+
+  db.query(sql, (error, allDataFromTables) => {
+    error ? console.log(error) : true; 
+
+    let [ roles, employees, departments ] = allDataFromTables;
+
+    let expandedRoles = roles.map(rol => {
+      let thisRolesDepartment = departments.find(dep => dep.id == rol.department_id);
+      return {
+        ...new Role(rol),
+        department_name: thisRolesDepartment.name
+      }
+    })
+
+    let expandedEmployees = employees.map(emp => {
+      let isManager = emp.role_id == roleLevels.Manager;
+      let managerOfEmployee = employees.find(em => emp.manager_id == em.id);
+      let thisEmployeesRole = expandedRoles.find(rol => rol.id == emp.role_id);
+      let thisEmployeesDepartment = departments.find(dep => dep.id == thisEmployeesRole.department_id);
+
+      return {
+        ...new Employee(emp),
+        salary: parseFloat(thisEmployeesRole.salary).toLocaleString(`en-US`),
+        job_title: thisEmployeesRole.title,
+        department_id: thisEmployeesDepartment.id,
+        department_name: thisEmployeesDepartment.name,
+        fullName: `${emp.first_name} ${emp.last_name}`,
+        manager_id: isManager ? null : managerOfEmployee.id,
+        manager_name: isManager ? null : `${managerOfEmployee.first_name} ${managerOfEmployee.last_name}`,
+      }
+    })
+
+    let managers = expandedEmployees.filter(emp => emp.role_id == roleLevels.Manager);
+    let managerNames = managers.map(emp => emp.fullName);
+
+    let choices = expandedRoles.map(rol => rol.title);
+    let questionsToAsk = [
+      {
+        type: `input`,
+        name: `first_name`,
+        message: `What is the first name of the employee?`,
+      },
+      {
+        type: `input`,
+        name: `last_name`,
+        message: `What is the last name of the employee?`,
+      },
+      {
+        choices,
+        name: `role`,
+        type: `list`,
+        message: `What is the role of the employee?`,
+      },
+      {
+        type: `list`,
+        name: `manager`,
+        choices: managerNames,
+        message: `Who is the manager of this employee?`,
+        when(response) {
+          return response.role != `Manager`;
+        }
+      }
+    ];
+  
+    inquirer.prompt(questionsToAsk).then(employeeResponse => {
+      let { first_name, last_name, role, manager } = employeeResponse;
+      let role_id = roles.find(rol => rol.title == role).id;
+      let manager_id = manager ? managers.find(mang => `${mang.first_name} ${mang.last_name}` == manager)?.id : expandedEmployees.length + 1;
+      
+      if (expandedEmployees.find(emp => emp.first_name == first_name && emp.last_name == last_name)) {
+        console.log(`Employee Exists, Same Name Taken`);
+        return;
+      } else {
+        addEmployee(first_name, last_name, manager_id, role_id);
+      }
+    })
+  });
+}
+
 
 // const addDepartment
 
@@ -220,7 +330,7 @@ const startMenu = () => {
     if (choice == mainMenuChoices.ViewAllEmployees) {
       viewEmployees();
     } else if (choice == mainMenuChoices.AddAnEmployee) {
-     functionToSetupHere();
+      askEmployeeQuestionsAndThenAddEmployee();
     } else if (choice == mainMenuChoices.ViewAllDepartments) {
       viewDepartments();
     } else if (choice == mainMenuChoices.ViewAllRoles) {
@@ -235,14 +345,31 @@ const startMenu = () => {
       console.log(`Under Construction!`);
       setTimeout(() => {
         startMenu();
-      }, 4000);
+      }, 3000);
     }
   });
 };
 
 // Get and post routes here
 // app.get (for each route - employees, departments, new employees, roles, employees roles, new departments, etc)
-// any other queries
+// Read all departments
+app.get("/api/departments", (req, res) => {
+  let server = true;
+ viewDepartments(res, server);
+});
+
+// Read all employees
+app.get("/api/employees", (req, res) => {
+  let server = true;
+ viewEmployees(res, server);
+});
+
+// Read all roles
+app.get("/api/roles", (req, res) => {
+  let server = true;
+ viewRoles(res, server);
+});
+
 // delete routes
 // app.delete
 
