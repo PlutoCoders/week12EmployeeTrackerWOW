@@ -4,7 +4,7 @@ Employee Tracker Assignment for week 12 bootcamp!
 ## Repo Link
 -  [*Repo Link Here*](https://github.com/PlutoCoders/week12EmployeeTrackerWOW)
 ## Walkthrough Video Link
-- 
+- [*Video Walkthrough Link Here*](https://drive.google.com/file/d/13XjTNEvPlhEBsrpuE_eZAmweii_wpQ4T/view)
 
 ## In this assignment
 - We are creating a database that allows users to navigate through it and search for employees, roles, etc.
@@ -15,6 +15,9 @@ Employee Tracker Assignment for week 12 bootcamp!
 - in the terminal run
 - node server.js
 - select the choices, and have fun managing your employee db!
+
+## Image of Stuff
+![Alt Text](/Assets/week%2012%20repo%20image.png)
 
 
 ## Checklist
