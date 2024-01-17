@@ -2,7 +2,7 @@
 Employee Tracker Assignment for week 12 bootcamp!
 
 ## Repo Link
-- 
+-  [*Repo Link Here*](https://github.com/PlutoCoders/week12EmployeeTrackerWOW)
 ## Walkthrough Video Link
 - 
 
