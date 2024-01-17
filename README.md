@@ -11,6 +11,11 @@ Employee Tracker Assignment for week 12 bootcamp!
 - This is useful because it allows user-friendly searching through what could be large databases
 - Everything is done from the terminal
 
+## How to start:
+- in the terminal run
+- node server.js
+- select the choices, and have fun managing your employee db!
+
 
 ## Checklist
 WHEN I start the application

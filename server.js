@@ -34,6 +34,7 @@ const roleLevels = {
   Warden: 3,
   Minister: 4,
   King: 5,
+  Manager: 6,
 }
 
 // Used in places such as the addEmployee, so that the names are structured nicely, since users won't always capitalize every first letter of a name.
@@ -57,6 +58,9 @@ capWords = (str) => {
 
 // const viewEmployees
 const viewEmployees = ( res = false, server = false, newestFirst = false ) => {
+  // The first call to our database, up until now, vanilla javascript
+  // This is the first real database call
+  // This is where env variables are most needed
   const sql = `SELECT * FROM roles; SELECT * FROM employees; SELECT * FROM departments;`;
 
   db.query(sql, (error, allDataFromTables) => {
@@ -722,4 +726,4 @@ app.listen(PORT, () => {
 });
 
 // Last line is to call the entire startMenu() function to run the app and begin the prompting process
-startMenu()
+startMenu();
